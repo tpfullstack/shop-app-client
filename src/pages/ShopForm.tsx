@@ -126,9 +126,9 @@ const ShopForm = () => {
                     {isAddMode ? 'Ajouter une boutique' : 'Modifier la boutique'}
                 </Typography>
 
-                <Box sx={{ display: 'block', ml: 'auto', mr: 'auto', width: '80%', mb: 3 }}>
+                <Box sx={{ display: 'block', ml: 'auto', mr: 'auto', width: { xs: '100%', sm: '80%' }, mb: 3 }}>
                     <Divider>Informations de la boutique</Divider>
-                    <FormControl sx={{ mt: 2, width: '50%' }}>
+                    <FormControl sx={{ mt: 2, width: '100%', sm: '50%' }}>
                         <TextField
                             autoFocus
                             required
@@ -171,9 +171,9 @@ const ShopForm = () => {
                                         pb: 1,
                                         pt: 7,
                                         display: 'flex',
-                                        flexDirection: 'row',
+                                        flexDirection: { xs: 'column', sm: 'row' },
                                         justifyContent: 'center',
-                                        gap: 1,
+                                        gap: { xs: 0, sm: 1 },
                                     }}
                                 >
                                     <FormControl sx={{ marginBottom: 2 }}>

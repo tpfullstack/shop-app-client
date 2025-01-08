@@ -1,4 +1,4 @@
-import { Box, Fab, Grid, Pagination, Typography } from '@mui/material';
+import { Box, Fab, Grid, Pagination, Typography, useMediaQuery, useTheme } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,9 @@ const Products = () => {
     const [count, setCount] = useState<number>(0);
     const [page, setPage] = useState<number>(0);
     const [pageSelected, setPageSelected] = useState<number>(0);
+
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Gestion responsive pour petits écrans
 
     const getProducts = () => {
         setLoading(true);
@@ -35,37 +38,71 @@ const Products = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-            <Typography variant="h2">Les produits</Typography>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 4,
+                px: isSmallScreen ? 2 : 5, // Ajustement du padding pour petits écrans
+            }}
+        >
+            <Typography variant="h2" sx={{ fontSize: isSmallScreen ? '1.5rem' : '2rem' }}>
+                Les produits
+            </Typography>
 
+            {/* Bouton Ajouter un produit */}
             <Box
                 sx={{
                     width: '100%',
                     display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
+                    flexDirection: isSmallScreen ? 'column' : 'row', // Disposition verticale sur petits écrans
+                    justifyContent: isSmallScreen ? 'center' : 'flex-end',
+                    gap: 2,
                 }}
             >
-                <Fab variant="extended" color="primary" aria-label="add" onClick={() => navigate('/product/create')}>
+                <Fab
+                    variant="extended"
+                    color="primary"
+                    aria-label="add"
+                    onClick={() => navigate('/product/create')}
+                    sx={{ alignSelf: isSmallScreen ? 'center' : 'auto' }}
+                >
                     <AddIcon sx={{ mr: 1 }} />
                     Ajouter un produit
                 </Fab>
             </Box>
 
-            {/* Products */}
-            <Grid container alignItems="center" rowSpacing={3} columnSpacing={3}>
+            {/* Grille des produits */}
+            <Grid container alignItems="center" rowSpacing={3} columnSpacing={2}>
                 {products?.map((product) => (
-                    <Grid item key={product.id} xs={4}>
+                    <Grid item key={product.id} xs={12} sm={6} md={4}>
                         <ProductCard product={product} displayShop={true} />
                     </Grid>
                 ))}
             </Grid>
 
-            {/* Pagination */}
+            {/* Pagination ou message Aucun produit */}
             {products?.length !== 0 ? (
-                <Pagination count={count} page={page} siblingCount={1} onChange={handleChangePagination} />
+                <Pagination
+                    count={count}
+                    page={page}
+                    siblingCount={1}
+                    onChange={handleChangePagination}
+                    sx={{
+                        mt: 2,
+                        '& .MuiPagination-ul': { justifyContent: 'center' },
+                    }}
+                />
             ) : (
-                <Typography variant="h5" sx={{ mt: -1 }}>
+                <Typography
+                    variant="h6"
+                    sx={{
+                        mt: 2,
+                        textAlign: 'center',
+                        fontSize: isSmallScreen ? '1rem' : '1.25rem',
+                    }}
+                >
                     Aucun produit correspondant
                 </Typography>
             )}

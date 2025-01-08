@@ -92,8 +92,8 @@ const CategoryForm = () => {
                     flexDirection: 'column',
                     ml: 'auto',
                     mr: 'auto',
-                    width: '70%',
-                    mb: 2,
+                    width: '100%',
+                    maxWidth: 600,  // Limits width for larger screens
                 }}
             >
                 <Divider>Informations de la catégorie</Divider>
@@ -105,7 +105,10 @@ const CategoryForm = () => {
                     onChange={(e) => setCategory({ ...category, name: e.target.value })}
                     error={!!errors?.name}
                     helperText={errors?.name}
-                    sx={{ my: 2, width: '75%', ml: 'auto', mr: 'auto' }}
+                    sx={{
+                        my: 2,
+                        width: '100%',  // Ensures the input takes full width of the container
+                    }}
                 />
             </FormControl>
 
