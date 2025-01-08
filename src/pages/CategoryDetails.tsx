@@ -55,10 +55,17 @@ const CategoryDetails = () => {
         >
             <ActionButtons handleDelete={handleDelete} handleEdit={handleEdit} />
 
-            <Typography variant="h3" sx={{ textAlign: 'center' }}>
+            <Typography
+                variant="h3"
+                sx={{
+                    textAlign: 'center',
+                    mt: { xs: 5, sm: 0 }, 
+                }}
+            >
                 {category.name}
             </Typography>
         </Paper>
+
     );
 };
 

@@ -9,6 +9,8 @@ import {
     Select,
     SelectChangeEvent,
     Typography,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from 'react';
@@ -28,6 +30,9 @@ const Home = () => {
 
     const [sort, setSort] = useState<string>('');
     const [filters, setFilters] = useState<string>('');
+
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Small screens
 
     const getShops = () => {
         setLoading(true);
@@ -61,37 +66,55 @@ const Home = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-            <Typography variant="h2">Les boutiques</Typography>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 4,
+                px: isSmallScreen ? 2 : 5, // Padding for smaller screens
+            }}
+        >
+            <Typography variant="h4" textAlign="center">
+                Les boutiques
+            </Typography>
 
+            {/* Bouton Ajouter */}
             <Box
                 sx={{
                     width: '100%',
                     display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
+                    justifyContent: isSmallScreen ? 'center' : 'flex-end',
                 }}
             >
-                <Fab variant="extended" color="primary" aria-label="add" onClick={() => navigate('/shop/create')}>
+                <Fab
+                    variant="extended"
+                    color="primary"
+                    aria-label="add"
+                    onClick={() => navigate('/shop/create')}
+                    sx={{ px: 2 }}
+                >
                     <AddIcon sx={{ mr: 1 }} />
-                    Ajouter une boutique
+                    {isSmallScreen ? 'Ajouter' : 'Ajouter une boutique'}
                 </Fab>
             </Box>
 
-            {/* Sort and filters */}
+            {/* Tri et Filtres */}
             <Box
                 sx={{
                     width: '100%',
                     display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
+                    flexDirection: isSmallScreen ? 'column' : 'row',
+                    alignItems: 'center',
+                    justifyContent: isSmallScreen ? 'center' : 'space-between',
+                    gap: 2,
                 }}
             >
                 <FormControl sx={{ minWidth: 200 }}>
-                    <InputLabel id="demo-simple-select-label">Trier par</InputLabel>
+                    <InputLabel id="sort-select-label">Trier par</InputLabel>
                     <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
+                        labelId="sort-select-label"
+                        id="sort-select"
                         value={sort}
                         label="Trier par"
                         onChange={handleChangeSort}
@@ -108,10 +131,10 @@ const Home = () => {
                 <Filters setUrlFilters={setFilters} setSort={setSort} sort={sort} />
             </Box>
 
-            {/* Shops */}
+            {/* Liste des boutiques */}
             <Grid container alignItems="center" rowSpacing={3} columnSpacing={3}>
                 {shops?.map((shop) => (
-                    <Grid item key={shop.id} xs={4}>
+                    <Grid item key={shop.id} xs={12} sm={6} md={4}>
                         <ShopCard shop={shop} />
                     </Grid>
                 ))}
@@ -119,9 +142,18 @@ const Home = () => {
 
             {/* Pagination */}
             {shops?.length !== 0 ? (
-                <Pagination count={count} page={page} siblingCount={1} onChange={handleChangePagination} />
+                <Pagination
+                    count={count}
+                    page={page}
+                    siblingCount={1}
+                    onChange={handleChangePagination}
+                    sx={{
+                        mt: 2,
+                        '& .MuiPagination-ul': { justifyContent: 'center' },
+                    }}
+                />
             ) : (
-                <Typography variant="h5" sx={{ mt: -1 }}>
+                <Typography variant="h6" sx={{ mt: 2 }}>
                     Aucune boutique correspondante
                 </Typography>
             )}
