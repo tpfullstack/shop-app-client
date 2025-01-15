@@ -11,6 +11,7 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
+    TextField
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from 'react';
@@ -28,6 +29,7 @@ const Home = () => {
     const [page, setPage] = useState<number>(0);
     const [pageSelected, setPageSelected] = useState<number>(0);
 
+    const [search, setSearch] = useState<string>('');
     const [sort, setSort] = useState<string>('');
     const [filters, setFilters] = useState<string>('');
 
@@ -64,6 +66,9 @@ const Home = () => {
     const handleChangeSort = (event: SelectChangeEvent) => {
         setSort(event.target.value as string);
     };
+    const handleChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(event.target.value);
+    };
 
     return (
         <Box
@@ -97,6 +102,26 @@ const Home = () => {
                     <AddIcon sx={{ mr: 1 }} />
                     {isSmallScreen ? 'Ajouter' : 'Ajouter une boutique'}
                 </Fab>
+            </Box>
+
+            <Box
+                sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    marginBottom: 2,
+                }}
+            >
+                <TextField
+                    label="Rechercher"
+                    variant="outlined"
+                    value={search}
+                    onChange={handleChangeSearch}
+                    sx={{
+                        marginBottom: 2,
+                        width: { xs: '100%', sm: 300 },
+                    }}
+                />
             </Box>
 
             {/* Tri et Filtres */}

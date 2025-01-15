@@ -20,6 +20,7 @@ type FiltersType = {
     inVacations: string;
     createdAfter: Dayjs | null;
     createdBefore: Dayjs | null;
+    search: string;
 };
 
 const transformFiltersToURL = (filters: FiltersType): string => {
@@ -32,7 +33,7 @@ const transformFiltersToURL = (filters: FiltersType): string => {
     let url = '';
     for (const [key, value] of Object.entries(transform)) {
         if (value) {
-            url += `&${key}=${value}`;
+            url += `&${key}=${encodeURIComponent(value)}`;
         }
     }
 
@@ -50,6 +51,7 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
         inVacations: '',
         createdAfter: null,
         createdBefore: null,
+        search: '',
     };
     const [open, setOpen] = useState<boolean>(false);
     const [filters, setFilters] = useState<FiltersType>(defaultFilters);
@@ -87,6 +89,17 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
 
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Filtrer les boutiques</DialogTitle>
+
+                <DialogContent>
+                    <TextField
+                        label="Rechercher"
+                        variant="outlined"
+                        value={filters.search}
+                        onChange={(e) => handleChange('search', e.target.value)}
+                        fullWidth
+                        sx={{ marginTop: 2 }}
+                    />
+                </DialogContent>
 
                 <DialogContent>
                     <FormControl fullWidth sx={{ marginTop: 2 }}>
