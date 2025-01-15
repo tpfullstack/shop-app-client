@@ -10,8 +10,8 @@ import {
     Select,
     TextField,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
@@ -20,45 +20,22 @@ type FiltersType = {
     inVacations: string;
     createdAfter: Dayjs | null;
     createdBefore: Dayjs | null;
-    search: string;
-};
-
-const transformFiltersToURL = (filters: FiltersType): string => {
-    const transform = {
-        ...filters,
-        createdAfter: filters.createdAfter?.format('YYYY-MM-DD'),
-        createdBefore: filters.createdBefore?.format('YYYY-MM-DD'),
-    };
-
-    let url = '';
-    for (const [key, value] of Object.entries(transform)) {
-        if (value) {
-            url += `&${key}=${encodeURIComponent(value)}`;
-        }
-    }
-
-    return url;
 };
 
 type Props = {
-    setUrlFilters: Dispatch<SetStateAction<string>>;
+    filters: FiltersType;
+    onFilterChange: (filters: FiltersType) => void;
     setSort: Dispatch<SetStateAction<string>>;
     sort: string;
 };
 
-const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
-    const defaultFilters: FiltersType = {
-        inVacations: '',
-        createdAfter: null,
-        createdBefore: null,
-        search: '',
-    };
+const Filters = ({ filters, onFilterChange, setSort, sort }: Props) => {
     const [open, setOpen] = useState<boolean>(false);
-    const [filters, setFilters] = useState<FiltersType>(defaultFilters);
+    const [localFilters, setLocalFilters] = useState<FiltersType>(filters);
 
     useEffect(() => {
-        if (sort) setFilters(defaultFilters);
-    }, [sort]);
+        if (sort) setLocalFilters(filters);
+    }, [sort, filters]);
 
     const handleClickButton = () => {
         setOpen(true);
@@ -69,14 +46,18 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
     };
 
     const handleClear = () => {
-        setFilters(defaultFilters);
+        setLocalFilters({
+            inVacations: '',
+            createdAfter: null,
+            createdBefore: null,
+        });
     };
 
-    const handleChange = (key: string, value: string | Dayjs | undefined | null) =>
-        setFilters({ ...filters, [key]: value });
+    const handleChange = (key: string, value: string | Dayjs | null) =>
+        setLocalFilters({ ...localFilters, [key]: value });
 
     const handleValidate = () => {
-        setUrlFilters(transformFiltersToURL(filters));
+        onFilterChange(localFilters);
         setSort('');
         setOpen(false);
     };
@@ -91,23 +72,12 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
                 <DialogTitle>Filtrer les boutiques</DialogTitle>
 
                 <DialogContent>
-                    <TextField
-                        label="Rechercher"
-                        variant="outlined"
-                        value={filters.search}
-                        onChange={(e) => handleChange('search', e.target.value)}
-                        fullWidth
-                        sx={{ marginTop: 2 }}
-                    />
-                </DialogContent>
-
-                <DialogContent>
                     <FormControl fullWidth sx={{ marginTop: 2 }}>
                         <InputLabel id="demo-simple-select-label">Congé</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
-                            value={filters.inVacations}
+                            value={localFilters.inVacations}
                             label="Congé"
                             onChange={(e) => handleChange('inVacations', e.target.value)}
                         >
@@ -122,10 +92,9 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
 
                 <DialogContent>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
+                        <DatePicker
                             label="Créée après"
-                            inputFormat="DD/MM/YYYY"
-                            value={filters.createdAfter}
+                            value={localFilters.createdAfter}
                             onChange={(v: Dayjs | null) => handleChange('createdAfter', v)}
                             renderInput={(params) => <TextField {...params} />}
                         />
@@ -134,10 +103,9 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
 
                 <DialogContent>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
+                        <DatePicker
                             label="Créée avant"
-                            inputFormat="DD/MM/YYYY"
-                            value={filters.createdBefore}
+                            value={localFilters.createdBefore}
                             onChange={(v: Dayjs | null) => handleChange('createdBefore', v)}
                             renderInput={(params) => <TextField {...params} />}
                         />
