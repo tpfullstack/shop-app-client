@@ -17,6 +17,7 @@ const ProductDetails = () => {
 
     const getProduct = (productId: string) => {
         ProductService.getProduct(productId).then((res) => {
+            res.data.price = res.data.price / 100;
             setProduct(res.data);
         });
     };
