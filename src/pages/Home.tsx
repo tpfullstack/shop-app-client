@@ -8,6 +8,7 @@ import {
     Pagination,
     Select,
     SelectChangeEvent,
+    TextField,
     Typography,
     useMediaQuery,
     useTheme,
@@ -19,6 +20,30 @@ import { Filters, ShopCard } from '../components';
 import { useAppContext } from '../context';
 import { ShopService } from '../services';
 import { ResponseArray, Shop } from '../types';
+import { Dayjs } from 'dayjs';
+
+type FiltersType = {
+    inVacations: string;
+    createdAfter: Dayjs | null;
+    createdBefore: Dayjs | null;
+};
+
+const transformFiltersToURL = (filters: FiltersType & { search: string }): string => {
+    const transform = {
+        ...filters,
+        createdAfter: filters.createdAfter?.format('YYYY-MM-DD'),
+        createdBefore: filters.createdBefore?.format('YYYY-MM-DD'),
+    };
+
+    let url = '';
+    for (const [key, value] of Object.entries(transform)) {
+        if (value) {
+            url += `&${key}=${encodeURIComponent(value)}`;
+        }
+    }
+
+    return url;
+};
 
 const Home = () => {
     const navigate = useNavigate();
@@ -29,18 +54,29 @@ const Home = () => {
     const [pageSelected, setPageSelected] = useState<number>(0);
 
     const [sort, setSort] = useState<string>('');
-    const [filters, setFilters] = useState<string>('');
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [filters, setFilters] = useState<FiltersType>({
+        inVacations: '',
+        createdAfter: null,
+        createdBefore: null,
+    });
 
     const theme = useTheme();
-    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Small screens
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     const getShops = () => {
         setLoading(true);
         let promisedShops: Promise<ResponseArray<Shop>>;
+        const allFilters = {
+            ...filters,
+            search: searchTerm,
+        };
+        const urlFilters = transformFiltersToURL(allFilters);
+
         if (sort) {
             promisedShops = ShopService.getShopsSorted(pageSelected, 9, sort);
-        } else if (filters) {
-            promisedShops = ShopService.getShopsFiltered(pageSelected, 9, filters);
+        } else if (urlFilters) {
+            promisedShops = ShopService.getShopsFiltered(pageSelected, 9, urlFilters);
         } else {
             promisedShops = ShopService.getShops(pageSelected, 9);
         }
@@ -54,8 +90,12 @@ const Home = () => {
     };
 
     useEffect(() => {
-        getShops();
-    }, [pageSelected, sort, filters]);
+        const debounceTimer = setTimeout(() => {
+            getShops();
+        }, 300);
+
+        return () => clearTimeout(debounceTimer);
+    }, [searchTerm, pageSelected, sort, filters]);
 
     const handleChangePagination = (event: React.ChangeEvent<unknown>, value: number) => {
         setPageSelected(value - 1);
@@ -72,14 +112,13 @@ const Home = () => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 4,
-                px: isSmallScreen ? 2 : 5, // Padding for smaller screens
+                px: isSmallScreen ? 2 : 5,
             }}
         >
             <Typography variant="h4" textAlign="center">
                 Les boutiques
             </Typography>
 
-            {/* Bouton Ajouter */}
             <Box
                 sx={{
                     width: '100%',
@@ -99,7 +138,15 @@ const Home = () => {
                 </Fab>
             </Box>
 
-            {/* Tri et Filtres */}
+            <TextField
+                label="Rechercher"
+                variant="outlined"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                fullWidth
+                sx={{ mb: 2 }}
+            />
+
             <Box
                 sx={{
                     width: '100%',
@@ -128,10 +175,14 @@ const Home = () => {
                     </Select>
                 </FormControl>
 
-                <Filters setUrlFilters={setFilters} setSort={setSort} sort={sort} />
+                <Filters
+                    filters={filters}
+                    onFilterChange={setFilters}
+                    setSort={setSort}
+                    sort={sort}
+                />
             </Box>
 
-            {/* Liste des boutiques */}
             <Grid container alignItems="center" rowSpacing={3} columnSpacing={3}>
                 {shops?.map((shop) => (
                     <Grid item key={shop.id} xs={12} sm={6} md={4}>
@@ -140,7 +191,6 @@ const Home = () => {
                 ))}
             </Grid>
 
-            {/* Pagination */}
             {shops?.length !== 0 ? (
                 <Pagination
                     count={count}
