@@ -30,7 +30,7 @@ const ProductCard = ({ product, displayShop = false }: Props) => {
                 <Typography variant="h4" color="text.primary" gutterBottom>
                     {formattedProduct.name}
                 </Typography>
-                <Typography variant="h6">Prix : {priceFormatter(formattedProduct.price)}</Typography>
+                <Typography variant="h6">Prix : {priceFormatter((formattedProduct.price)/100)}</Typography>
                 {formattedProduct.description && (
                     <Typography sx={{ mt: 1.5, maxHeight: 50, overflow: 'hidden' }} color="text.secondary">
                         {formattedProduct.description}
