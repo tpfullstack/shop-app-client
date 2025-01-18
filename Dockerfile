@@ -6,6 +6,7 @@ WORKDIR /app
 
 # copy package.json into the container at /app
 COPY package.json /app/package.json
+COPY package-lock.json /app/package-lock.json
 
 # install dependencies
 RUN npm install --legacy-peer-deps
