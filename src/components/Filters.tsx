@@ -9,9 +9,10 @@ import {
     MenuItem,
     Select,
     TextField,
+    FormHelperText,
 } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
@@ -22,41 +23,21 @@ type FiltersType = {
     createdBefore: Dayjs | null;
 };
 
-const transformFiltersToURL = (filters: FiltersType): string => {
-    const transform = {
-        ...filters,
-        createdAfter: filters.createdAfter?.format('YYYY-MM-DD'),
-        createdBefore: filters.createdBefore?.format('YYYY-MM-DD'),
-    };
-
-    let url = '';
-    for (const [key, value] of Object.entries(transform)) {
-        if (value) {
-            url += `&${key}=${value}`;
-        }
-    }
-
-    return url;
-};
-
 type Props = {
-    setUrlFilters: Dispatch<SetStateAction<string>>;
+    filters: FiltersType;
+    onFilterChange: (filters: FiltersType) => void;
     setSort: Dispatch<SetStateAction<string>>;
     sort: string;
 };
 
-const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
-    const defaultFilters: FiltersType = {
-        inVacations: '',
-        createdAfter: null,
-        createdBefore: null,
-    };
+const Filters = ({ filters, onFilterChange, setSort, sort }: Props) => {
     const [open, setOpen] = useState<boolean>(false);
-    const [filters, setFilters] = useState<FiltersType>(defaultFilters);
+    const [localFilters, setLocalFilters] = useState<FiltersType>(filters);
+    const [dateError, setDateError] = useState<string>('');
 
     useEffect(() => {
-        if (sort) setFilters(defaultFilters);
-    }, [sort]);
+        if (sort) setLocalFilters(filters);
+    }, [sort, filters]);
 
     const handleClickButton = () => {
         setOpen(true);
@@ -64,19 +45,43 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
 
     const handleClose = () => {
         setOpen(false);
+        setDateError('');
     };
 
     const handleClear = () => {
-        setFilters(defaultFilters);
+        setLocalFilters({
+            inVacations: '',
+            createdAfter: null,
+            createdBefore: null,
+        });
+        setDateError('');
     };
 
-    const handleChange = (key: string, value: string | Dayjs | undefined | null) =>
-        setFilters({ ...filters, [key]: value });
+    const validateDates = (newFilters: FiltersType): boolean => {
+        if (newFilters.createdAfter && newFilters.createdBefore) {
+            if (newFilters.createdAfter.isAfter(newFilters.createdBefore)) {
+                setDateError("La date 'Créée après' doit être antérieure à 'Créée avant'");
+                return false;
+            }
+        }
+        setDateError('');
+        return true;
+    };
+
+    const handleChange = (key: string, value: string | Dayjs | null) => {
+        const newFilters = { ...localFilters, [key]: value };
+        if (key === 'createdAfter' || key === 'createdBefore') {
+            validateDates(newFilters);
+        }
+        setLocalFilters(newFilters);
+    };
 
     const handleValidate = () => {
-        setUrlFilters(transformFiltersToURL(filters));
-        setSort('');
-        setOpen(false);
+        if (validateDates(localFilters)) {
+            onFilterChange(localFilters);
+            setSort('');
+            setOpen(false);
+        }
     };
 
     return (
@@ -94,7 +99,7 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
-                            value={filters.inVacations}
+                            value={localFilters.inVacations}
                             label="Congé"
                             onChange={(e) => handleChange('inVacations', e.target.value)}
                         >
@@ -109,10 +114,9 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
 
                 <DialogContent>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
+                        <DatePicker
                             label="Créée après"
-                            inputFormat="DD/MM/YYYY"
-                            value={filters.createdAfter}
+                            value={localFilters.createdAfter}
                             onChange={(v: Dayjs | null) => handleChange('createdAfter', v)}
                             renderInput={(params) => <TextField {...params} />}
                         />
@@ -121,14 +125,18 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
 
                 <DialogContent>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DesktopDatePicker
+                        <DatePicker
                             label="Créée avant"
-                            inputFormat="DD/MM/YYYY"
-                            value={filters.createdBefore}
+                            value={localFilters.createdBefore}
                             onChange={(v: Dayjs | null) => handleChange('createdBefore', v)}
                             renderInput={(params) => <TextField {...params} />}
                         />
                     </LocalizationProvider>
+                    {dateError && (
+                        <FormHelperText error>
+                            {dateError}
+                        </FormHelperText>
+                    )}
                 </DialogContent>
 
                 <DialogActions>
@@ -138,7 +146,7 @@ const Filters = ({ setUrlFilters, setSort, sort }: Props) => {
                     <Button autoFocus onClick={handleClose}>
                         Annuler
                     </Button>
-                    <Button onClick={handleValidate}>Valider</Button>
+                    <Button onClick={handleValidate} disabled={!!dateError}>Valider</Button>
                 </DialogActions>
             </Dialog>
         </>

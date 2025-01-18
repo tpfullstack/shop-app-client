@@ -73,11 +73,21 @@ const ShopDetails = () => {
         >
             <ActionButtons handleDelete={handleDelete} handleEdit={handleEdit} />
 
-            <Typography variant="h3" sx={{ textAlign: 'center', marginBottom: 3 }}>
+            <Typography
+                variant="h3"
+                sx={{
+                    textAlign: 'center',
+                    mt: { xs: 5, sm: 0 },
+                    marginBottom:3 
+                }}
+            >
                 {shop.name}
             </Typography>
             <Typography variant="h6">
                 Cette boutique comporte {shop.nbProducts} {pluralize('produit', shop.nbProducts)}
+            </Typography>
+            <Typography variant="h6">
+                Cette boutique comporte {shop.nbCategories} {pluralize('catégorie', shop.nbCategories)}
             </Typography>
             <Typography sx={{ my: 1 }}>
                 {shop.inVacations ? 'En congé actuellement' : "N'est pas en congé actuellement"}

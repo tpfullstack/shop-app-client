@@ -1,7 +1,7 @@
 import { CategoryService, ProductService } from '../services';
 import { useEffect, useState } from 'react';
 import { Category, Product, ResponseArray } from '../types';
-import { Box, FormControl, Grid, Pagination, Typography } from '@mui/material';
+import { Box, FormControl, Grid, Pagination, Typography, useMediaQuery, useTheme } from '@mui/material';
 import ProductCard from './ProductCard';
 import { useAppContext } from '../context';
 import SelectPaginate from './SelectPaginate';
@@ -17,6 +17,9 @@ const ShopProducts = ({ shopId }: Props) => {
     const [page, setPage] = useState<number>(0);
     const [pageSelected, setPageSelected] = useState<number>(0);
     const [filter, setFilter] = useState<Category | null>(null);
+
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); // Responsive handling for small screens
 
     const getProducts = () => {
         setLoading(true);
@@ -46,14 +49,24 @@ const ShopProducts = ({ shopId }: Props) => {
     };
 
     return (
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+        <Box
+            sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 4,
+                px: isSmallScreen ? 2 : 5, // Adjust padding for smaller screens
+            }}
+        >
             {/* Filters */}
             <Box
                 sx={{
                     width: '100%',
                     display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
+                    flexDirection: isSmallScreen ? 'column' : 'row', // Responsive alignment
+                    justifyContent: isSmallScreen ? 'center' : 'space-between',
+                    gap: 2,
                 }}
             >
                 <FormControl sx={{ minWidth: 220 }}>
@@ -67,18 +80,29 @@ const ShopProducts = ({ shopId }: Props) => {
                 </FormControl>
             </Box>
 
-            <Grid container alignItems="center" rowSpacing={3} columnSpacing={3}>
+            {/* Product Grid */}
+            <Grid container alignItems="center" rowSpacing={3} columnSpacing={2}>
                 {products?.map((product) => (
-                    <Grid item key={product.id} xs={4}>
+                    <Grid item key={product.id} xs={12} sm={6} md={4}>
                         <ProductCard product={product} />
                     </Grid>
                 ))}
             </Grid>
 
+            {/* Pagination or No Products Message */}
             {products?.length !== 0 ? (
-                <Pagination count={count} page={page} siblingCount={1} onChange={handleChangePagination} />
+                <Pagination
+                    count={count}
+                    page={page}
+                    siblingCount={1}
+                    onChange={handleChangePagination}
+                    sx={{
+                        mt: 2,
+                        '& .MuiPagination-ul': { justifyContent: 'center' },
+                    }}
+                />
             ) : (
-                <Typography variant="h6" sx={{ mt: -4 }}>
+                <Typography variant="h6" sx={{ mt: 2, textAlign: 'center' }}>
                     Aucun produit correspondant
                 </Typography>
             )}

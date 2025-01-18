@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, Divider, FormControl, InputAdornment, Paper, TextField, Typography } from '@mui/material';
+import { Box, Button, Divider, FormControl, InputAdornment, Paper, TextField, Typography, Grid } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SelectPaginate } from '../components';
@@ -146,9 +146,9 @@ const ProductForm = () => {
                 {isAddMode ? 'Ajouter un produit' : 'Modifier le produit'}
             </Typography>
 
-            <FormControl sx={{ display: 'block', ml: 'auto', mr: 'auto', width: '75%', mb: 3 }}>
+            <FormControl sx={{ display: 'block', ml: 'auto', mr: 'auto', width: '100%', maxWidth: 900 }}>
                 <Divider>Nom du produit</Divider>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4, mt: 2, mb: 6 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 4, mt: 2, mb: 6 }}>
                     <TextField
                         autoFocus
                         required
@@ -158,7 +158,7 @@ const ProductForm = () => {
                         fullWidth
                         error={!!errors.nameFr}
                         helperText={errors.nameFr}
-                        sx={{ width: '50%' }}
+                        sx={{ width: { xs: '100%', sm: '48%' } }}
                     />
                     <TextField
                         autoFocus
@@ -168,12 +168,12 @@ const ProductForm = () => {
                         fullWidth
                         error={!!errors.nameEn}
                         helperText={errors.nameEn}
-                        sx={{ width: '50%' }}
+                        sx={{ width: { xs: '100%', sm: '48%' } }}
                     />
                 </Box>
 
                 <Divider>Description</Divider>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4, mt: 2, mb: 6 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 4, mt: 2, mb: 6 }}>
                     <TextField
                         autoFocus
                         multiline
@@ -182,9 +182,8 @@ const ProductForm = () => {
                         value={getLocalizedProduct(product.localizedProducts, Locale.FR).description}
                         onChange={(e) => handleChange(Locale.FR, 'description', e.target.value)}
                         fullWidth
-                        sx={{ width: '50%' }}
+                        sx={{ width: { xs: '100%', sm: '48%' } }}
                     />
-
                     <TextField
                         autoFocus
                         multiline
@@ -193,12 +192,12 @@ const ProductForm = () => {
                         value={getLocalizedProduct(product.localizedProducts, Locale.EN).description}
                         onChange={(e) => handleChange(Locale.EN, 'description', e.target.value)}
                         fullWidth
-                        sx={{ width: '50%' }}
+                        sx={{ width: { xs: '100%', sm: '48%' } }}
                     />
                 </Box>
 
                 <Divider>Informations supplémentaires</Divider>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4, mt: 2, mb: 3 }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 4, mt: 2, mb: 3 }}>
                     <TextField
                         autoFocus
                         required
@@ -212,10 +211,10 @@ const ProductForm = () => {
                         }}
                         error={!!errors.price}
                         helperText={errors.price}
-                        sx={{ width: '50%' }}
+                        sx={{ width: { xs: '100%', sm: '48%' } }}
                     />
 
-                    <Box sx={{ width: '50%' }}>
+                    <Box sx={{ width: { xs: '100%', sm: '48%' } }}>
                         <SelectPaginate
                             value={product.shop}
                             onChange={setShop}

@@ -17,6 +17,7 @@ const ProductDetails = () => {
 
     const getProduct = (productId: string) => {
         ProductService.getProduct(productId).then((res) => {
+            res.data.price = res.data.price / 100;
             setProduct(res.data);
         });
     };
@@ -61,7 +62,14 @@ const ProductDetails = () => {
         >
             <ActionButtons handleDelete={handleDelete} handleEdit={handleEdit} />
 
-            <Typography variant="h3" sx={{ textAlign: 'center', marginBottom: 3 }}>
+            <Typography
+                variant="h3"
+                sx={{
+                    textAlign: 'center',
+                    mt: { xs: 5, sm: 0 }, 
+                    marginBottom:3 
+                }}
+            >
                 {formattedProduct.name}
             </Typography>
             <Typography variant="h6">Prix : {priceFormatter(formattedProduct.price)}</Typography>

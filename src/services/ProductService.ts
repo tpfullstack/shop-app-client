@@ -25,11 +25,20 @@ export function getProduct(id: string): Promise<AxiosResponse<Product>> {
 }
 
 export function createProduct(product: MinimalProduct): Promise<AxiosResponse<Product>> {
-    return axios.post(`${process.env.REACT_APP_API}/products`, product);
+    const formattedProduct = {
+        ...product,
+        price: product.price * 100
+    };
+    return axios.post(`${process.env.REACT_APP_API}/products`, formattedProduct);
 }
 
+
 export function editProduct(product: MinimalProduct): Promise<AxiosResponse<Product>> {
-    return axios.put(`${process.env.REACT_APP_API}/products`, product);
+    const formattedProduct = {
+        ...product,
+        price: product.price * 100
+    };
+    return axios.put(`${process.env.REACT_APP_API}/products`, formattedProduct);
 }
 
 export function deleteProduct(id: string): Promise<AxiosResponse<Product>> {
