@@ -9,6 +9,7 @@ import {
     MenuItem,
     Select,
     TextField,
+    FormHelperText,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -32,6 +33,7 @@ type Props = {
 const Filters = ({ filters, onFilterChange, setSort, sort }: Props) => {
     const [open, setOpen] = useState<boolean>(false);
     const [localFilters, setLocalFilters] = useState<FiltersType>(filters);
+    const [dateError, setDateError] = useState<string>('');
 
     useEffect(() => {
         if (sort) setLocalFilters(filters);
@@ -43,6 +45,7 @@ const Filters = ({ filters, onFilterChange, setSort, sort }: Props) => {
 
     const handleClose = () => {
         setOpen(false);
+        setDateError('');
     };
 
     const handleClear = () => {
@@ -51,15 +54,34 @@ const Filters = ({ filters, onFilterChange, setSort, sort }: Props) => {
             createdAfter: null,
             createdBefore: null,
         });
+        setDateError('');
     };
 
-    const handleChange = (key: string, value: string | Dayjs | null) =>
-        setLocalFilters({ ...localFilters, [key]: value });
+    const validateDates = (newFilters: FiltersType): boolean => {
+        if (newFilters.createdAfter && newFilters.createdBefore) {
+            if (newFilters.createdAfter.isAfter(newFilters.createdBefore)) {
+                setDateError("La date 'Créée après' doit être antérieure à 'Créée avant'");
+                return false;
+            }
+        }
+        setDateError('');
+        return true;
+    };
+
+    const handleChange = (key: string, value: string | Dayjs | null) => {
+        const newFilters = { ...localFilters, [key]: value };
+        if (key === 'createdAfter' || key === 'createdBefore') {
+            validateDates(newFilters);
+        }
+        setLocalFilters(newFilters);
+    };
 
     const handleValidate = () => {
-        onFilterChange(localFilters);
-        setSort('');
-        setOpen(false);
+        if (validateDates(localFilters)) {
+            onFilterChange(localFilters);
+            setSort('');
+            setOpen(false);
+        }
     };
 
     return (
@@ -110,6 +132,11 @@ const Filters = ({ filters, onFilterChange, setSort, sort }: Props) => {
                             renderInput={(params) => <TextField {...params} />}
                         />
                     </LocalizationProvider>
+                    {dateError && (
+                        <FormHelperText error>
+                            {dateError}
+                        </FormHelperText>
+                    )}
                 </DialogContent>
 
                 <DialogActions>
@@ -119,7 +146,7 @@ const Filters = ({ filters, onFilterChange, setSort, sort }: Props) => {
                     <Button autoFocus onClick={handleClose}>
                         Annuler
                     </Button>
-                    <Button onClick={handleValidate}>Valider</Button>
+                    <Button onClick={handleValidate} disabled={!!dateError}>Valider</Button>
                 </DialogActions>
             </Dialog>
         </>
