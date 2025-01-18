@@ -1,5 +1,5 @@
 # Use a lighter version of Node as a parent image
-FROM node:19-alpine
+FROM node:20-alpine
 
 # Set the working directory to /app
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json /app/package.json
 
 # install dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy the current directory contents into the container at /app
 COPY . /app
